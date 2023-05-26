@@ -1,17 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Série #{{ program.id }}{% endblock %}
+{% block title %}Série #{{ program.id }}-Saison #{{ season.number }}{% endblock %}
 
 {% block body %}
     <div class="media">
         <img class="align-self-start mr-3" src="{{program.poster}}" alt="{{ program.title }} poster">
         <div class="media-body">
-            <h1 class="mt-0">{{ program.title }}</h1>
+            <h1 class="mt-0">Saison {{ season.number }} de {{ program.title }}</h1>
             <p>{{ program.synopsis }}</p>
             <p>Catégorie : {{ program.category.name }}</p>
+            <h4>Liste des épisodes</h4>
             <ul>
-                {% for season in program.seasons %}
-                    <li><a href="/program/{{ program.id }}/season/{{season.id}}">Saison {{ season.number }}</a></li>
+                {% for episode in season.episodes %}
+                    <li><a href="/program/{{ program.id }}/season/{{season.id}}/episode/{{ episode.id }}">Episode {{ episode.number }} : {{ episode.title }}</a></li>
                 {% endfor %}
             </ul>
         </div>
