@@ -6,6 +6,7 @@ use App\Entity\Episode;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 
 class EpisodeFixtures extends Fixture implements DependentFixtureInterface
 {
@@ -16,15 +17,21 @@ class EpisodeFixtures extends Fixture implements DependentFixtureInterface
     ];
     public function load(ObjectManager $manager): void
     {
-        foreach (self::EPISODES as $key => $episodeData) {
-            $episode = new Episode();
-            $episode->setTitle($episodeData['title']);
-            $episode->setNumber($key+=1);
-            $episode->setSynopsis($episodeData['synopsis']);
-            $episode->setSeason($this->getReference('season1_The last of us'));
-            $manager->persist($episode);
+        $faker = Factory::create();
 
+        for ($programNumber = 1; $programNumber <= 5; $programNumber++) {
+            for($seasonNumber = 1; $seasonNumber <= 5; $seasonNumber++) {
+                for($episodeNumber = 1; $episodeNumber <= 10; $episodeNumber++) {
+                    $episode = new Episode();
+                    $episode->setTitle($faker->sentence(4));
+                    $episode->setNumber($episodeNumber);
+                    $episode->setSynopsis($faker->paragraph());
+                    $episode->setSeason($this->getReference('season'. $seasonNumber . '_serie' . $programNumber));
+                    $manager->persist($episode);
+                }
+            }
         }
+
         $manager->flush();
     }
 
