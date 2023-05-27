@@ -6,18 +6,28 @@ use App\Entity\Season;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 
 class SeasonFixtures extends Fixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        $season = new Season();
-        $season->setNumber(1);
-        $season->setProgram($this->getReference('program_The last of us'));
-        $season->setYear(2023);
-        $season->setDesciption('tells the story of the events in the first game');
-        $manager->persist($season);
-        $this->addReference('season1_The last of us', $season);
+        $faker = Factory::create();
+
+        for($programNumber = 1; $programNumber <= 5; $programNumber++) {
+            for($seasonNumber = 1; $seasonNumber <= 5; $seasonNumber++) {
+                $season = new Season();
+                $season->setNumber($seasonNumber);
+                $season->setProgram($this->getReference('program_' . $programNumber));
+                $season->setYear($faker->year());
+                $season->setDesciption($faker->paragraphs(3, true));
+                $manager->persist($season);
+                $this->addReference('season'. $seasonNumber . '_serie' . $programNumber, $season);
+            }
+            
+        }
+        
+        //$this->addReference('season1_The last of us', $season);
         // $product = new Product();
         // $manager->persist($product);
 
