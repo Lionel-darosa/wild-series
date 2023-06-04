@@ -9,7 +9,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class ProgramFixtures extends Fixture implements DependentFixtureInterface
 {
-    private const PROGRAMS = [
+    public const PROGRAMS = [
         ['title' => 'Brooklyn nine-nine', 'poster' => 'brooklyn_99.jpg', 'synopsis' => 'stories that take place into a Brooklyn police station', 'category' => 'Comedie'],
         ['title' => 'The last of us', 'poster' => 'the_last_of_us.jpg', 'synopsis' => 'the crossing of the united states, following an epidemic, of a father who has lost his daughter and an orphan girl who may hold the cure', 'category' => 'Horreur'],
         ['title' => 'What we do in the shadows', 'poster' => 'what_we_do_in_the_shadows.jpg', 'synopsis' => 'the documentary of a vampire roommates in new jersey', 'category' => 'Comedie'],
