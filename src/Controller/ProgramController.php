@@ -8,12 +8,14 @@ use App\Entity\Season;
 use App\Form\ProgramType;
 use App\Repository\ProgramRepository;
 use App\Repository\SeasonRepository;
+use App\Service\ProgramDuration;
 use Doctrine\DBAL\Driver\Mysqli\Initializer\Options;
-use Doctrine\ORM\Mapping\Entity;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/program', name: 'program_')]
 class ProgramController extends AbstractController
@@ -28,12 +30,15 @@ class ProgramController extends AbstractController
     }
 
     #[Route('/new', name: 'new')]
-    public function new(Request $request, ProgramRepository $programRepository): Response
+    public function new(Request $request, ProgramRepository $programRepository, SluggerInterface $slugger): Response
     {
         $program = new Program();
         $form = $this->createForm(ProgramType::class, $program);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $slug = $slugger->slug($program->getTitle());
+            $program->setSlug($slug);
+
             $programRepository->save($program, true);
 
             $this->addFlash('success', 'The new program has been created');
@@ -46,8 +51,8 @@ class ProgramController extends AbstractController
         ]);
     }
 
-    #[Route('/show/{id<\d+>}', methods: ['GET'], name: 'show')]
-    public function show(Program $program): Response
+    #[Route('/show/{slug}', methods: ['GET'], name: 'show')]
+    public function show(Program $program, ProgramDuration $programDuration): Response
     {
         if (!$program) {
             throw $this->createNotFoundException(
@@ -56,10 +61,11 @@ class ProgramController extends AbstractController
         }
         return $this->render('program/show.html.twig', [
             'program' => $program,
+            'programDuration' => $programDuration->calculate($program),
         ]);
     }
 
-    #[Route('/{program}/season/{season}', name: 'season_show')]
+    #[Route('/{slug}/season/{season}', name: 'season_show')]
     public function showSeason(Program $program, Season $season): Response
     {
         if (!$program || !$season) {
@@ -73,7 +79,9 @@ class ProgramController extends AbstractController
         ]);
     }
 
-    #[Route('/{program}/season/{season}/episode/{episode}', name: 'episode_show')]
+    #[Route('/{program_slug}/season/{season}/episode/{episode_slug}', name: 'episode_show')]
+    #[Entity('program', options: ['mapping' => ['program_slug' => 'slug']])]
+    #[Entity('episode', options: ['mapping' => ['episode_slug' => 'slug']])]
     public function showEpisode(Program $program, Season $season, Episode $episode): Response
     {
         if (!$program || !$season || !$episode) {
