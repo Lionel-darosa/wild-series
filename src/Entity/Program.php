@@ -3,14 +3,18 @@
 namespace App\Entity;
 
 use App\Repository\ProgramRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: ProgramRepository::class)]
+#[Vich\Uploadable]
 #[UniqueEntity(
     fields: ['title'],
     message: 'Ce program existe déjà',
@@ -38,8 +42,15 @@ class Program
     )]
     private ?string $synopsis = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $poster = null;
+
+    #[Vich\UploadableField(mapping: 'poster_file', fileNameProperty: 'poster')]
+    #[Assert\File(
+        maxSize: '1M',
+        mimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+    )]
+    private ?File $posterFile = null;
 
     #[ORM\ManyToOne(inversedBy: 'programs')]
     #[ORM\JoinColumn(nullable: false)]
@@ -53,6 +64,9 @@ class Program
 
     #[ORM\Column(length: 255)]
     private ?string $slug = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $updateAt = null;
 
     public function __construct()
     {
@@ -178,6 +192,32 @@ class Program
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+	public function getPosterFile(): ?File
+    {
+        return $this->posterFile;
+    }
+	
+	public function setPosterFile(File $image = null): Program
+    {
+        $this->posterFile = $image;
+        if ($image) {
+            $this->updateAt = new DateTime('now');
+        }
+        return $this;
+    }
+
+    public function getUpdateAt(): ?\DateTimeInterface
+    {
+        return $this->updateAt;
+    }
+
+    public function setUpdateAt(?\DateTimeInterface $updateAt): self
+    {
+        $this->updateAt = $updateAt;
 
         return $this;
     }
