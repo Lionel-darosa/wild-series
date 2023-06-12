@@ -11,6 +11,20 @@
             <p>{{ episode.synopsis }}</p>
         </div>
     </div>
+    {% if app.user %}
+        {{ form_start(form) }}
+        {{ form_widget(form) }}
+        {# {{ form_widget(form.comment) }}
+        {{ form_widget(form.rate) }}
+        <input type="hidden" name="{{ field_name(form.author) }}" value="{{ app.user.email }}"> #}
+        <button type="submit">Add comment</button>
+        {{ form_end(form) }}
+    {% endif %}
+    {% for comment in episode.comments %}
+        <p>{{ comment.comment }}</p>
+        <p>{{ comment.rate }}</p>
+        <p>{{ comment.author.email }}</p>
+    {% endfor %}
 
     <a href="{{ path('program_index') }}">
         Retour à la liste des programmes

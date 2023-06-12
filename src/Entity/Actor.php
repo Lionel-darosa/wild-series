@@ -28,7 +28,7 @@ class Actor
     #[ORM\ManyToMany(targetEntity: Program::class, inversedBy: 'actors')]
     private Collection $programs;
 
-    #[ORM\Column(type:'string', length: 255)]
+    #[ORM\Column(type:'string', length: 255, nullable: true)]
     private ?string $portrait = null;
 
     #[Vich\UploadableField(mapping: 'portrait_file', fileNameProperty: 'portrait')]

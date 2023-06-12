@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Episode;
 use App\Entity\Program;
 use App\Entity\Season;
+use App\Form\CommentType;
 use App\Form\ProgramType;
+use App\Repository\CommentRepository;
 use App\Repository\ProgramRepository;
 use App\Repository\SeasonRepository;
 use App\Service\ProgramDuration;
@@ -92,8 +95,19 @@ class ProgramController extends AbstractController
     #[Route('/{program_slug}/season/{season}/episode/{episode_slug}', name: 'episode_show')]
     #[Entity('program', options: ['mapping' => ['program_slug' => 'slug']])]
     #[Entity('episode', options: ['mapping' => ['episode_slug' => 'slug']])]
-    public function showEpisode(Program $program, Season $season, Episode $episode): Response
+    public function showEpisode(Program $program, Season $season, Episode $episode, Request $request, CommentRepository $commentRepository): Response
     {
+        $comment = new Comment();
+        $user = $this->getUser();
+        $form = $this->createForm(CommentType::class, $comment);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $comment->setEpisode($episode);
+            $comment->setAuthor($user);
+            $commentRepository->save($comment, true);
+
+            // return $this->redirectToRoute('');
+        }
         if (!$program || !$season || !$episode) {
             throw $this->createNotFoundException(
                 'No program with id : '.$program->getId().' or no season with id : '. $season->getId() .' or no episode with id : '. $episode->getId() .' found in program\'s table.'
@@ -103,6 +117,7 @@ class ProgramController extends AbstractController
             'program' => $program,
             'season' => $season,
             'episode' => $episode,
+            'form' => $form,
         ]);
     }
 }
