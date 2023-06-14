@@ -9,6 +9,10 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFixtures extends Fixture
 {
+    public const USERS = [
+        ['email' => 'lionel.darosa@hotmail.fr', 'role' => ['ROLE_CONTRIBUTOR'], 'password' => 'password'],
+        ['email' => 'lioneldarosa@gmail.fr', 'role' => ['ROLE_ADMIN'], 'password' => 'password'],
+    ];
     private UserPasswordHasherInterface $passwordHasher;
 
     public function __construct(UserPasswordHasherInterface $passwordHasher)
@@ -17,18 +21,14 @@ class UserFixtures extends Fixture
     }
     public function load(ObjectManager $manager): void
     {
-        $contributor = new User();
-        $contributor->setEmail('lionel.darosa@hotmail.fr');
-        $contributor->setRoles(['ROLE_CONTRIBUTOR']);
-        $contributor->setPassword($this->passwordHasher->hashPassword($contributor, 'password'));
-        $manager->persist($contributor);
-
-        $admin = new User();
-        $admin->setEmail('lioneldarosa@gmail.com');
-        $admin->setRoles(['ROLE_ADMIN']);
-        $admin->setPassword($this->passwordHasher->hashPassword($admin, 'password'));
-        $manager->persist($admin);
-
+        foreach (self::USERS as $user) {
+            $contributor = new User();
+            $contributor->setEmail($user['email']);
+            $contributor->setRoles($user['role']);
+            $contributor->setPassword($this->passwordHasher->hashPassword($contributor, $user['password']));
+            $manager->persist($contributor);
+            $this->addReference('user_' . $contributor->getEmail(), $contributor);
+        }
         // $product = new Product();
         // $manager->persist($product);
 

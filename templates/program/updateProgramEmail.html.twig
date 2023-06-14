@@ -1,0 +1,9 @@
+{% extends 'layoutEmail.html.twig' %}
+
+{% block title %}Update Program{% endblock %}
+
+{% block body %}
+    <h1>Program "{{ program.title }}" updated</h1>
+    <p>Hello, the program "{{ program.title }}" has been updated on Wild Series</p>
+    <p>Synopsis : {{program.synopsis }}</p>
+{% endblock %}

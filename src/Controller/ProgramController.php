@@ -21,6 +21,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[Route('/program', name: 'program_')]
 class ProgramController extends AbstractController
@@ -43,6 +44,7 @@ class ProgramController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $slug = $slugger->slug($program->getTitle());
             $program->setSlug($slug);
+            $program->setOwner($this->getUser());
 
             $programRepository->save($program, true);
 
@@ -60,6 +62,38 @@ class ProgramController extends AbstractController
         }
 
         return $this->render(('program/new.html.twig'), [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{slug}/edit', name:'edit')]
+    public function edit(Program $program, Request $request,MailerInterface $mailer, ProgramRepository $programRepository, SluggerInterface $slugger): Response
+    {
+        $form = $this->createForm(ProgramType::class, $program);
+        $form->handleRequest($request);
+
+        if ($this->getUser() !== $program->getOwner()) {
+            throw $this->createAccessDeniedException('Only the owner can edit the program');
+        }
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $slug = $slugger->slug($program->getTitle());
+            $program->setSlug($slug);
+
+            $programRepository->save($program, true);
+
+            $email = (new Email())
+                ->from($this->getParameter('mailer_from'))
+                ->to($this->getParameter('mailer_from'))
+                ->subject('La série ' . $program->getTitle() . ' vient d\'être mise à jour !')
+                ->html($this->renderView('program/updateProgramEmail.html.twig', ['program' => $program]));
+            
+            $mailer->send($email);
+
+            return $this->redirectToRoute('program_index');
+        }
+
+        return $this->render(('program/edit.html.twig'), [
             'form' => $form,
         ]);
     }
@@ -106,7 +140,11 @@ class ProgramController extends AbstractController
             $comment->setAuthor($user);
             $commentRepository->save($comment, true);
 
-            // return $this->redirectToRoute('');
+            return $this->redirectToRoute('program_episode_show', [
+                'program_slug' => $comment->getEpisode()->getSeason()->getProgram()->getSlug(),
+                'season' => $comment->getEpisode()->getSeason()->getId(),
+                'episode_slug' => $comment->getEpisode()->getSlug(),
+            ]);
         }
         if (!$program || !$season || !$episode) {
             throw $this->createNotFoundException(

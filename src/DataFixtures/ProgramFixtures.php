@@ -3,9 +3,11 @@
 namespace App\DataFixtures;
 
 use App\Entity\Program;
+use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Faker\Factory;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class ProgramFixtures extends Fixture implements DependentFixtureInterface
@@ -25,6 +27,8 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
     }
     public function load(ObjectManager $manager)
     {
+        $users = UserFixtures::USERS;
+        $faker = Factory::create();
         foreach (self::PROGRAMS as $key => $programData){
             $programNameSlug = $this->slugger->slug($programData['title']);
             $program = new Program();
@@ -33,6 +37,7 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
             $program->setSynopsis($programData['synopsis']);
             $program->setCategory($this->getReference('category_' . $programData['category']));
             $program->setSlug($programNameSlug);
+            $program->setOwner($this->getReference('user_' . $users[$faker->numberBetween(0, count($users)-1)]['email']));
             $manager->persist($program);
             $this->addReference('program_' . $programNameSlug, $program);
         }
@@ -44,6 +49,7 @@ class ProgramFixtures extends Fixture implements DependentFixtureInterface
         
         return [
             CategoryFixtures::class,
+            UserFixtures::class,
         ];
     }
 }

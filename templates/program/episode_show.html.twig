@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="media">
-        <img class="align-self-start mr-3" src="{{ asset("build/images/#{program.poster}") }}" alt="{{ program.title }} poster">
+        <img class="align-self-start mr-3" src="{{ vich_uploader_asset(program) }}" alt="{{ program.title }} poster">
         <div class="media-body">
             <h1 class="mt-0">Episode {{ episode.number }} de la Saison {{ season.number }} de {{ program.title }}</h1>
             <h3>Titre: {{ episode.title }}</h3>
@@ -14,9 +14,6 @@
     {% if app.user %}
         {{ form_start(form) }}
         {{ form_widget(form) }}
-        {# {{ form_widget(form.comment) }}
-        {{ form_widget(form.rate) }}
-        <input type="hidden" name="{{ field_name(form.author) }}" value="{{ app.user.email }}"> #}
         <button type="submit">Add comment</button>
         {{ form_end(form) }}
     {% endif %}
@@ -24,6 +21,17 @@
         <p>{{ comment.comment }}</p>
         <p>{{ comment.rate }}</p>
         <p>{{ comment.author.email }}</p>
+        {% if app.user %}
+            {% if app.user.email == comment.author.email %}
+                <a href="{{ path('comment_edit', {id: comment.id}) }}">modifier</a>
+            {% endif %}
+            {% if app.user.email == comment.author.email or is_granted("ROLE_ADMIN") %}
+                <form method="post" action="{{ path('comment_delete', {'id': comment.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+                    <button class="btn">Delete</button>
+                </form>
+            {% endif %}
+        {% endif %}
     {% endfor %}
 
     <a href="{{ path('program_index') }}">
