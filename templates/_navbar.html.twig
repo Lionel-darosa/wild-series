@@ -31,6 +31,7 @@
       {% else %}
         <a href="{{ path('app_login') }}"> Se connecter</a>
       {% endif %}
+      <button {{ stimulus_action('theme', 'toggleDarkMode') }}>Toggle dark mode</button>
     </div>
   </div>
 </nav>

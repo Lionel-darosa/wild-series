@@ -3,7 +3,9 @@
 {% block title %}All programs{% endblock %}
 
 {% block body %}
-    <h1>Toutes les séries de la table program : </h1>
+    <h1>Toutes les séries de la table program : <span {{stimulus_controller('symfony/ux-typed', {
+        strings: ['Bienvenue sur Wild Series', 'Le meilleur site pour suivre tes séries préférées', 'envie de se faire peur?😱💀', 'de pleurer?😭', 'pleins d\'emotions']
+    })}}></span></h1>
     {% for program in programs %}
         <div>
             <h2>{{ loop.index }} / {{ program.title }} - Catégorie : {{ program.category.name }}</h2>
