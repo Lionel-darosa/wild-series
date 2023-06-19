@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    <h1>Profile</h1>
+
+    <p>{{ user.email }}</p>
+
+    <p>My programs</p>
+    {% for program in user.programs %}
+        <p>{{ program.title }}</p>
+    {% endfor %}
+{% endblock %}
