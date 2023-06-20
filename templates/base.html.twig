@@ -23,10 +23,10 @@
                     </div>
                 {% endfor %}
             {% endfor %}
-        
             {% block body %}
                 
             {% endblock %}
+            <aside id="sidebar" class="sidebar d-flex flex-column">{{ component('last_episode') }}</aside>
         </div>
     </body>
 </html>

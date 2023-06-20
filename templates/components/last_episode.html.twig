@@ -1,0 +1,17 @@
+<div{{ attributes }}>
+    <h5>Derniers Episodes</h5>
+    <div class="card-group">
+        {% for episode in this.lastsEpisodes %}
+            <div class="card border-dark shadow text-center m-2 rounded" style="width: 10rem;">
+                <img src="{{ vich_uploader_asset(episode.season.program) }}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{episode.title}}</h5>
+                    <p class="card-text">episode n° {{ episode.number }}</p>
+                    <p class="card-text">season n°{{ episode.season.number }}</p>
+                    <p class="card-text">serie : {{ episode.season.program.title }}</p>
+                    <a href="{{ path("program_episode_show", {"program_slug":  episode.season.program.slug , "season": episode.season.id, "episode_slug": episode.slug }) }}" class="btn btn-primary">Voir la fiche</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
