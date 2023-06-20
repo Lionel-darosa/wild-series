@@ -3,6 +3,10 @@
 {% block title %}All programs{% endblock %}
 
 {% block body %}
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button>Search program</button>
+    {{ form_end(form) }}
     <h1>Toutes les séries de la table program : <span {{stimulus_controller('symfony/ux-typed', {
         strings: ['Bienvenue sur Wild Series', 'Le meilleur site pour suivre tes séries préférées', 'envie de se faire peur?😱💀', 'de pleurer?😭', 'pleins d\'emotions']
     })}}></span></h1>
